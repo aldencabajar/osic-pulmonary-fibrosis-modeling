@@ -211,9 +211,20 @@ if __name__ == "__main__":
         'baseline': baseline_scaler,
         'SmokingStatus': oh_encoder
     }
-    df_processed = preprocess_structured_data(
-        train_data,
-        patient_dcm_dict,
-        encoder_dict, return_df = True)
+    train_data_processed = preprocess_structured_data(
+        train_data, patient_dcm_dict,
+        encoder_dict, return_df = True
+    )
 
-    print(df_processed)
+    test_data_processed = preprocess_structured_data(
+        test_data, patient_dcm_dict,
+        encoder_dict, return_df = True
+    )
+
+
+    if 'data' not in os.listdir():
+        os.mkdir('data')
+    train_data_processed.to_pickle('data/train_preproc_struct_data.pkl')
+    test_data_processed.to_pickle('data/test_preproc_struct_data.pkl')
+
+    
