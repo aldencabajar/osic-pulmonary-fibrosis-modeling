@@ -1,0 +1,10 @@
+kaggle==1.5.10
+kaggle-environments==1.7.11
+pandas==1.2.0
+pystan==2.19.1.1
+scikit-learn==0.24.1
+tensorflow==2.4.1
+tensorflow-probability==0.12.1
+matplotlib==3.3.4
+seaborn==0.11.1
+
