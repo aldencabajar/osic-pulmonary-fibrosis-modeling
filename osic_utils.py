@@ -4,7 +4,7 @@ import os
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 
-def preprocess_structured_data(data, pid_dict, encoder_dicts, return_df = True):
+def preprocess_structured_data(data, pid_dict, encoder_dicts, return_df = False):
     """
         A function to preprocess the structured data.
         data = a pandas dataframe with the structured data
