@@ -1,4 +1,4 @@
-mport numpy as np
+import numpy as np
 import pandas as pd
 import pydicom
 import os
@@ -12,6 +12,7 @@ import tensorflow as tf
 from tensorflow.data import Dataset
 from scipy.stats import skew, kurtosis
 import gzip
+import osic_utils
 
 fails = []
 def return_default_value_if_fails(default_value):
@@ -235,3 +236,85 @@ def image_processing_pipeline(path, return_stats_only = False):
         return stats
     
     return smp['image'], stats
+
+
+if __name__ == '__main__':
+    root_dir = '/kaggle/input/osic-pulmonary-fibrosis-progression/train/'
+    train_data = pd.read_csv('/kaggle/input/osic-pulmonary-fibrosis-progression/train.csv')
+    patient_dcm_dict = {}
+
+    for dirname, _, filenames in os.walk(root_dir):
+        if 'ID' in dirname:
+            dirname_ = dirname.replace(root_dir, "")
+            patient_dcm_dict[dirname_] = filenames
+    patient_dcm_dict = {k: i for i, k in enumerate(sorted(patient_dcm_dict.keys()))}
+
+    ### fit encoders before running preprocessing data ###
+    # one-hot encoder
+    oh_encoder = OneHotEncoder(sparse = False, dtype = 'int32')
+    oh_encoder.fit(train_data['SmokingStatus'].values.reshape(-1, 1))
+
+    ### Standard scalers ####
+    # AGE
+    age_scaler = StandardScaler()
+    age_scaler.fit(train_data[['Patient', 'Age']].drop_duplicates()['Age'] \
+                .values.reshape(-1, 1))
+
+    # WEEKS
+    week_scaler = StandardScaler()
+    week_scaler.fit(train_data[['Patient', 'Weeks']].drop_duplicates()['Weeks'] \
+                .values.reshape(-1,1))
+
+    # PERCENTAGE
+    pct_scaler = StandardScaler()
+    pct_scaler.fit(train_data['Percent'].values.reshape(-1,1))
+    # BASELINE FVC
+    baseline_scaler = StandardScaler()
+    baseline_scaler.fit(train_data['FVC'].values.reshape(-1,1))
+
+    encoder_dict = {
+        'Age': age_scaler,
+        'Weeks': week_scaler,
+        'pct_bsl': pct_scaler,
+        'baseline': baseline_scaler,
+        'SmokingStatus': oh_encoder
+    }
+    X, pid, lbl = osic_utils.preprocess_structured_data(
+        train_data, 
+        patient_dcm_dict, 
+        encoder_dict)
+    print(X.shape)
+    print(pid.shape)
+    print(lbl.shape)
+
+
+    def _float_feature(value):
+        return tf.train.Feature(float_list=tf.train.FloatList(value=value))
+
+    # path to save the TFRecords file
+    train_filename = 'data/osic_train_tfrecords'
+
+    # open the file
+    writer = tf.io.TFRecordWriter(train_filename)
+
+    # iterate through all .npy files:
+    for k, v in patient_dcm_dict.items():
+        path = root_dir + k
+        img, _  = ct.image_processing_pipeline(path, return_stats_only = False)
+
+        idx = np.where(pid == v)[0]
+        s = np.take(X, idx, axis = 0)
+        lbls = np.take(lbl, idx)
+
+        # Create a feature
+        feature = {'train/label': _float_feature(lbls),
+                'train/struct': _float_feature(s.ravel()), 
+                'train/image': _float_feature(img.ravel())}
+
+        # Create an example protocol buffer
+        example = tf.train.Example(features=tf.train.Features(feature=feature))
+
+        # Serialize to string and write on the file
+        writer.write(example.SerializeToString())
+
+    writer.close()
