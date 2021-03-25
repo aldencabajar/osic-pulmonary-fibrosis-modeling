@@ -18,6 +18,7 @@ from skimage import morphology
 from skimage import measure
 from sklearn import cluster
 from scipy.stats import skew, kurtosis
+from time import time
 
 
 def create_image(scans):
@@ -195,5 +196,31 @@ if __name__ == "__main__":
 
     vol_ = [i[1] for i in list(lung_vol_pixel.take(1).as_numpy_iterator())]
     lung_stats = list(lung_img_statistics.take(1).as_numpy_iterator())
+
+    # check if it properly processed the images 
     print(vol_)
     print(lung_stats)
+
+    start = time()
+    lung_stats = [tup[1] for  i, tup in enumerate(dataset)]
+    end = time()
+
+    print((end - start)/60, 'mins')
+
+    # prepare data frame for lung image statistics
+    df_stats = pd.DataFrame(tf.concat(lung_stats, axis = 0).numpy(), 
+                columns = ['lung_vol', 'mean', 'var', 'skew', 'kurt'])
+    df_stats['PatientId'] = list(patient_dcm_dict.keys())[0:df_stats.shape[0]]
+
+    # sort lung statistics by patient dictionary
+    df_stats = df_stats.set_index('PatientId') \
+        .loc[list(patient_dcm_dict.keys())] \
+        .reset_index()
+    print(df_stats.head())
+
+    # save lung statistics to csv in data
+    df_stats.to_csv('data/lung_statistics.csv', index = False)
+
+
+
+
