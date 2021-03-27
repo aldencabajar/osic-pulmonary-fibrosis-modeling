@@ -8,7 +8,13 @@ You are given CT scan images for the first encounter, metadata, and information 
 
 Shown below is the loss function that was used to evaluate results in the competition:
 
-<p align="center"><img src="https://rawgit.com/aldencabajar/osic-pulmonary-fibrosis-modeling/master/img//70007dddce7d56e9f5e8fe7d0c383938.svg?invert_in_darkmode" align=middle width=334.01502089999997pt height=69.89835269999999pt/></p> 
+$$
+\begin{aligned}
+\sigma_{clipped} &= \mathrm{max}(\sigma, 70) \\
+\Delta &= \mathrm{min}(|\mathrm{FVC}_{true} - \mathrm{FVC}_{predicted}|, 1000) \\
+\mathrm{metric} &=  \sqrt{2}\Delta/\sigma_{clipped } - \ln{\sqrt{2}\sigma_{clipped}} 
+\end{aligned}
+$$ 
 
 ## Approach
 
