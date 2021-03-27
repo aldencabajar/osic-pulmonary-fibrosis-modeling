@@ -6,6 +6,16 @@ you are given the task of predicting FVC (Forced Vital Capacity) which is relate
 the total amount of air exhaled during a Forced Expiratory Volume (FEV) test for the next 146 weeks.
 You are given CT scan images for the first encounter, metadata, and information for the past weeks.
 
+Shown below is the loss function that was used to evaluate results in the competition:
+
+$$
+\begin{aligned}
+\sigma_{clipped} &= \mathrm{max}(\sigma, 70) \\
+\Delta &= \mathrm{min}(|\mathrm{FVC}_{true} - \mathrm{FVC}_{predicted}|, 1000) \\
+\mathrm{metric} &=  \sqrt{2}\Delta/\sigma_{clipped } - \ln{\sqrt{2}\sigma_{clipped}} 
+\end{aligned}
+$$ 
+
 ## Approach
 
 ### CT scan processing
