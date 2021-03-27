@@ -37,9 +37,11 @@ in the succeeding models. Statistics such as the mean, variance, skew, and kurto
 
 Markov Chain Monte Carlo (MCMC) sampling methods and variational inference were used
 to estimate the parameters for the model. The generative model was hierarchical, which means that 
-information is dependent over different levels from the overall -> patient -> patient-week level.  
+information is dependent over different levels from the *overall* -> *patient* -> *patient-week* level.  
 
 More precisely, the general generative model structure can be expressed with this graph:
+
+![](img/bayes_graph.png)
 
 
 
