@@ -41,6 +41,17 @@ More precisely, the general generative model structure can be expressed with thi
 
 ## Results
 
+The highest scoring model garnered me a rank of 1,213 out of 2,007, which is among
+the top 58%.
+
+|Model |Private score|Public score| 
+|------|------|------|
+|Variational inference |-7.9496 | -8.5531 |
+|Intercept-only Hierarchical model (MCMC)| -9.5848 | -9.6258 |
+|Model with covariates HM (MCMC)| -6.9190 | -9.6258 |
+
+
+
 
 
 
