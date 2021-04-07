@@ -81,6 +81,16 @@ def make_surrogate_posterior(num_ids, num_vars):
     )
 
 
+def predict_from_params(X):
+    other_vars_weights_ = other_vars_weights.mean().numpy().reshape(-1, 1)
+    intercept = intercept_.mean().numpy().reshape(-1, 1)
+    week_slope_ = week_slope.mean().numpy().reshape(-1, 1)
+    expected_val = (np.matmul(X[:, 1:], other_vars_weights_)
+                    + week_slope_ * X[:, :1]
+                    + intercept)
+    return expected_val
+
+
 if __name__ == '__main__':
     # loading data
     train_data = pd.read_pickle('data/train_preproc_struct_data.pkl')
@@ -147,21 +157,3 @@ if __name__ == '__main__':
     week_patient_weights,
     other_vars_weights,
     response_scale), _ = surrogate_posterior.sample_distributions()
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
